@@ -38,6 +38,14 @@ npm test        # transpiled unit tests (upstream suite)
    `<object>.testclasses.abap` naming convention for any test class you write.
 6. Commit the brief to `docs/zcode/` and open a PR. `npm run lint` must stay at 0 issues.
 
+## S/4HANA readiness
+
+- Skill: `.agents/skills/abap-s4-readiness/SKILL.md` (run the inventory, read it, write a brief).
+- Inventory: `python3 tools/s4_inventory.py` writes `docs/s4/readiness-inventory.md`; commit it
+  after any change under `src/` (`--check` fails if stale).
+- Plan: `docs/s4/remediation-plan.md` (waves 1-3 and the child-session split).
+- DeepWiki / Ask Devin demo questions with verified answers: `docs/s4/deepwiki.md`.
+
 ## Conventions
 
 - Do not tidy upstream ABAP opportunistically; change it only when the ticket is to fix it.

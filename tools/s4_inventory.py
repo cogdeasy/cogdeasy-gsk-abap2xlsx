@@ -133,11 +133,56 @@ def scan_quote(line, i):
     return n - 1
 
 
+def mask_quote(seg):
+    """Blank the contents of a '...' or `...` literal, keeping the delimiters."""
+    return seg[0] + "_" * max(len(seg) - 2, 0) + (seg[-1] if len(seg) > 1 else "")
+
+
+def mask_template(seg):
+    """Blank the literal text of a |...| template but keep code inside { } expressions."""
+    out, k, n = ["|"], 1, len(seg)
+    end = n - 1 if n > 1 and seg[-1] == "|" else n
+    while k < end:
+        ch = seg[k]
+        if ch == "\\":
+            out.append("_" * len(seg[k:k + 2]))
+            k += 2
+            continue
+        if ch == "{":
+            close = min(scan_expr(seg, k + 1), end - 1)
+            out.append("{")
+            out.append(mask_code(seg[k + 1:close]))
+            out.append(seg[close] if close > k else "")
+            k = close + 1
+            continue
+        out.append("_")
+        k += 1
+    if end < n:
+        out.append("|")
+    return "".join(out)
+
+
+def mask_code(text):
+    """Blank literals inside an embedded expression, keeping its code."""
+    out, i, n = [], 0, len(text)
+    while i < n:
+        ch = text[i]
+        if ch in "'`|":
+            j = min(scan_template(text, i) if ch == "|" else scan_quote(text, i), n - 1)
+            seg = text[i:j + 1]
+            out.append(mask_template(seg) if ch == "|" else mask_quote(seg))
+            i = j + 1
+            continue
+        out.append(ch)
+        i += 1
+    return "".join(out)
+
+
 def statements(text):
     """Yield (line, raw, code) per ABAP statement, with chains expanded.
 
-    raw keeps literals; code has comments removed and literal contents blanked to '_',
-    so both strings have the same length and positions line up.
+    raw keeps literals; code has comments removed and literal contents blanked to '_'
+    (code inside string-template { } is kept), so both strings line up by position.
     """
     raw, code, lines = [], [], []
     for ln, line in enumerate(text.splitlines(), 1):
@@ -152,7 +197,7 @@ def statements(text):
                 j = scan_template(line, i) if ch == "|" else scan_quote(line, i)
                 seg = line[i:j + 1]
                 raw.extend(seg)
-                code.extend(seg[0] + "_" * max(len(seg) - 2, 0) + (seg[-1] if len(seg) > 1 else ""))
+                code.extend(mask_template(seg) if ch == "|" else mask_quote(seg))
                 lines.extend([ln] * len(seg))
                 i = j + 1
                 continue
@@ -445,7 +490,9 @@ def main():
             print("%s is stale; run python3 tools/s4_inventory.py" % args.out, file=sys.stderr)
             return 1
         return 0
-    os.makedirs(os.path.dirname(args.out), exist_ok=True)
+    out_dir = os.path.dirname(args.out)
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
     with open(args.out, "w", encoding="utf-8", newline="\n") as fh:
         fh.write(text)
     return 0

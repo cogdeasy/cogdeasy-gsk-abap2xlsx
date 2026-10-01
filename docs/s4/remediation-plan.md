@@ -26,7 +26,7 @@ data migration or system conversion.
 
 | wave | scope | objects | occurrences | decision needed |
 |---|---|---|---|---|
-| 1 | mechanical syntax | 14 (11 in `src/`, 3 in `not_cloud/`) | 157 | rule change in `abaplint.json` |
+| 1 | mechanical syntax | 14 (11 in `src/`, 3 in `not_cloud/`) | 157 | rule change in `abaplint.json`, after wave 3 decides on `not_cloud/` |
 | 2 | non-released APIs and SAP tables in `src/` | 8 | 27 | yes, for items without a successor |
 | 3 | SAP GUI / ALV / OLE dependencies | 7 (5 in `not_cloud/`, 2 in `src/`) | 25 | yes, keep / replace / retire |
 
@@ -58,7 +58,9 @@ ABAP Cloud lint reports it as "Statement does not exist in the configured ABAP v
   those objects.
 - `abaplint.json` currently allows `ADD` / `SUBTRACT` (`"add": false, "subtract": false`) and
   `AGENTS.md` says not to tidy upstream ABAP without a ticket, so wave 1 needs its own ticket.
-  The last wave-1 PR switches both rules on so the lint gate keeps them out.
+  The rules are switched on only after the 28 `ADD` statements in `not_cloud/` are gone (session
+  1d, or the SAP team retires those objects in wave 3); `abaplint.json` lints `not_cloud/` too, so
+  switching them on earlier would fail the 0-issue gate.
 
 **Child sessions (3, plus 1 deferred):**
 
@@ -66,8 +68,8 @@ ABAP Cloud lint reports it as "Statement does not exist in the configured ABAP v
 |---|---|---|
 | 1a writers | `ZCL_EXCEL_WRITER_2007`, `_WRITER_HUGE_FILE`, `_WRITER_XLSM`, `_WRITER_CSV` | `npm run lint` 0 issues, `npm test` green, inventory regenerated |
 | 1b reader | `ZCL_EXCEL_READER_2007` | same |
-| 1c model | `ZCL_EXCEL`, `_COMMON`, `_FONT`, `_ROW`, `_TABLE`, `_WORKSHEET` | same, plus the `abaplint.json` rule switch if merged last |
-| 1d not_cloud | `ZCL_EXCEL_CONVERTER`, `ZCL_EXCEL_OLE`, `ZEXCEL_TEMPLATE_GET_TYPES` | only after the wave 3 decision |
+| 1c model | `ZCL_EXCEL`, `_COMMON`, `_FONT`, `_ROW`, `_TABLE`, `_WORKSHEET` | same |
+| 1d not_cloud | `ZCL_EXCEL_CONVERTER`, `ZCL_EXCEL_OLE`, `ZEXCEL_TEMPLATE_GET_TYPES` | after the wave 3 decision; last step switches the `ADD` / `SUBTRACT` rules on |
 
 ## Wave 2: non-released APIs and SAP tables
 

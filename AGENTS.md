@@ -41,5 +41,6 @@ npm test        # transpiled unit tests (upstream suite)
 ## Conventions
 
 - Do not tidy upstream ABAP opportunistically; change it only when the ticket is to fix it.
-- Follow the upstream style enforced by abaplint (lower-case keywords, `go_`/`lv_` prefixes).
+- Follow the upstream style enforced by abaplint: upper-case keywords (`keyword_case`) and
+  `lo_`/`lv_`/`lt_` prefixes for local variables, as in the existing code.
 - Conventional commit subjects (`docs:`, `fix:`, `test:`).

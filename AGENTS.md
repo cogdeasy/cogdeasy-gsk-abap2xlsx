@@ -41,6 +41,7 @@ npm test        # transpiled unit tests (upstream suite)
 ## Conventions
 
 - Do not tidy upstream ABAP opportunistically; change it only when the ticket is to fix it.
-- Follow the upstream style enforced by abaplint: upper-case keywords (`keyword_case`) and
-  `lo_`/`lv_`/`lt_` prefixes for local variables, as in the existing code.
+- Upper-case ABAP keywords (abaplint `keyword_case`). Naming is not linted: follow
+  `docs/contributing/coding-guidelines.md` (reuse a method's existing convention; new code uses
+  `lv_`, `lo_`, `ls_`, `lt_`, `lr_` for locals).
 - Conventional commit subjects (`docs:`, `fix:`, `test:`).
